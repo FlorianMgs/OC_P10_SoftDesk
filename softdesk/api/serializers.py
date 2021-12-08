@@ -2,12 +2,13 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.hashers import make_password
 from rest_framework.serializers import ModelSerializer, ValidationError, SerializerMethodField
 from rest_framework_simplejwt.tokens import RefreshToken
+from api.models import Project
 
 
 User = get_user_model()
 
 
-class SignupUserSerializer(ModelSerializer):
+class UserSerializer(ModelSerializer):
 
     tokens = SerializerMethodField()
 
@@ -32,3 +33,10 @@ class SignupUserSerializer(ModelSerializer):
             "access": str(tokens.access_token)
         }
         return data
+
+
+class ProjectSerializer(ModelSerializer):
+
+    class Meta:
+        model = Project
+        fields = ['title', 'description', 'type', 'project_author', 'contributors']
