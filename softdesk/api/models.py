@@ -35,28 +35,25 @@ class Project(models.Model):
     type = models.CharField(max_length=12, choices=TYPES_CHOICES)
     author_user_id = models.ForeignKey(
         to=settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        related_name='project_author')
-    contributors = models.ManyToManyField(
-        settings.AUTH_USER_MODEL,
-        through='Contributor',
-        related_name='contributors'
-    )
+        on_delete=models.CASCADE)
 
 
 class Contributor(models.Model):
 
     # Roles definition
-    AUTHOR = 'AUTHOR'
-    CONTRIBUTOR = 'CONTRIBUTOR'
-    ROLES_CHOICES = (
-        (AUTHOR, 'Author'),
-        (CONTRIBUTOR, 'Contributor')
-    )
+    # AUTHOR = 'AUTHOR'
+    # CONTRIBUTOR = 'CONTRIBUTOR'
+    # ROLES_CHOICES = (
+    #     (AUTHOR, 'Author'),
+    #     (CONTRIBUTOR, 'Contributor')
+    # )
 
     user_id = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     project_id = models.ForeignKey(to=Project, on_delete=models.CASCADE)
-    role = models.CharField(max_length=12, choices=ROLES_CHOICES)
+    # role = models.CharField(max_length=12, choices=ROLES_CHOICES)
+
+    class Meta:
+        unique_together = ('project_id', 'user_id')
 
 
 class Issue(models.Model):
