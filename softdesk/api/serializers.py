@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.hashers import make_password
 from rest_framework.serializers import ModelSerializer, ValidationError, SerializerMethodField
 from rest_framework_simplejwt.tokens import RefreshToken
-from api.models import Project, Contributor
+from api.models import Project, Contributor, Issue, Comment
 
 
 User = get_user_model()
@@ -60,6 +60,25 @@ class ProjectDetailSerializer(ModelSerializer):
     class Meta:
         model = Project
         fields = ['id', 'title', 'description', 'type', 'author_user_id']
+
+
+class IssueListSerializer(ModelSerializer):
+
+    class Meta:
+        model = Issue
+        fields = ['id', 'created_time', 'title', 'priority', 'tag', 'status', 'project_id']
+
+
+class IssueDetailSerializer(ModelSerializer):
+    class Meta:
+        model = Issue
+        fields = ['id', 'created_time', 'title', 'description', 'priority', 'tag', 'status', 'author_user_id', 'assignee_user_id', 'project_id']
+
+
+class CommentListSerializer(ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = ['id', 'created_time', 'description', 'author_user_id', 'issue_id']
 
 
 

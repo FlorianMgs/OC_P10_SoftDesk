@@ -5,8 +5,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from django.db import transaction, IntegrityError
 from django.contrib.auth import get_user_model
-from api.serializers import UserSignupSerializer, ProjectListSerializer, ProjectDetailSerializer, UserSerializer
-from api.models import Project, Contributor
+from api.serializers import UserSignupSerializer, ProjectListSerializer, ProjectDetailSerializer, UserSerializer, IssueListSerializer, IssueDetailSerializer, CommentListSerializer
+from api.models import Project, Contributor, Issue, Comment
 from api.mixins import GetDetailSerializerClassMixin
 
 
@@ -95,5 +95,64 @@ class UserContributorsViewset(ModelViewSet):
             return Response(data={'error': 'User does not exist !'})
 
 
-class IssuesViewset(ModelViewSet):
-    pass
+class IssuesViewset(GetDetailSerializerClassMixin, ModelViewSet):
+    permission_classes = [IsAuthenticated]
+
+    serializer_class = IssueListSerializer
+    detail_serializer_class = IssueDetailSerializer
+
+    def get_queryset(self):
+        return Issue.objects.filter(project_id=self.kwargs['projects_pk'])
+
+    @transaction.atomic
+    def create(self, request, *args, **kwargs):
+        request.POST._mutable = True
+        request.data["author_user_id"] = request.user.pk
+        if not request.data['assignee_user_id']:
+            request.data["assignee_user_id"] = request.user.pk
+        request.data["project_id"] = self.kwargs['projects_pk']
+        request.POST._mutable = False
+        return super(IssuesViewset, self).create(request, *args, **kwargs)
+
+    @transaction.atomic
+    def update(self, request, *args, **kwargs):
+        request.POST._mutable = True
+        request.data["author_user_id"] = request.user.pk
+        if not request.data['assignee_user_id']:
+            request.data["assignee_user_id"] = request.user.pk
+        request.data["project_id"] = self.kwargs['projects_pk']
+        request.POST._mutable = False
+        return super(IssuesViewset, self).update(request, *args, **kwargs)
+
+    def destroy(self, request, *args, **kwargs):
+        return super(IssuesViewset, self).destroy(request, *args, **kwargs)
+
+
+class CommentViewset(GetDetailSerializerClassMixin, ModelViewSet):
+    permission_classes = [IsAuthenticated]
+
+    serializer_class = CommentListSerializer
+    detail_serializer_class = CommentListSerializer
+
+    def get_queryset(self):
+        return Comment.objects.filter(issue_id=self.kwargs['issues_pk'])
+
+    @transaction.atomic
+    def create(self, request, *args, **kwargs):
+        request.POST._mutable = True
+        request.data['author_user_id'] = request.user.pk
+        request.data['issue_id'] = self.kwargs['issues_pk']
+        request.POST._mutable = False
+        return super(CommentViewset, self).create(request, *args, **kwargs)
+
+    @transaction.atomic
+    def update(self, request, *args, **kwargs):
+        request.POST._mutable = True
+        request.data['author_user_id'] = request.user.pk
+        request.data['issue_id'] = self.kwargs['issues_pk']
+        request.POST._mutable = False
+        return super(CommentViewset, self).update(request, *args, **kwargs)
+
+    def destroy(self, request, *args, **kwargs):
+        return super(CommentViewset, self).destroy(request, *args, **kwargs)
+
