@@ -8,7 +8,7 @@ from api.models import Project, Contributor
 User = get_user_model()
 
 
-class UserSerializer(ModelSerializer):
+class UserSignupSerializer(ModelSerializer):
 
     tokens = SerializerMethodField()
 
@@ -35,17 +35,31 @@ class UserSerializer(ModelSerializer):
         return data
 
 
+class UserSerializer(ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'first_name', 'last_name', 'email']
+
+
+class ContributorSerializer(ModelSerializer):
+
+    class Meta:
+        model = Contributor
+        fields = ['id', 'user_id', 'project_id']
+
+
 class ProjectListSerializer(ModelSerializer):
 
     class Meta:
         model = Project
-        fields = ['id', 'title', 'description', 'type']
+        fields = ['id', 'title', 'type', 'author_user_id']
 
 
 class ProjectDetailSerializer(ModelSerializer):
 
     class Meta:
         model = Project
-        fields = ['id', 'title', 'description', 'type', 'author_user_id', 'contributors']
+        fields = ['id', 'title', 'description', 'type', 'author_user_id']
+
 
 
