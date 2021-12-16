@@ -8,6 +8,7 @@ from django.contrib.auth import get_user_model
 from api.serializers import UserSignupSerializer, ProjectListSerializer, ProjectDetailSerializer, UserSerializer, IssueListSerializer, IssueDetailSerializer, CommentListSerializer
 from api.models import Project, Contributor, Issue, Comment
 from api.mixins import GetDetailSerializerClassMixin
+from api.permissions import ProjectPermission, IssuePermission, CommentPermission, ContributorViewsetPermission
 
 
 User = get_user_model()
@@ -24,7 +25,7 @@ class SignupViewset(APIView):
 
 
 class ProjectViewset(GetDetailSerializerClassMixin, ModelViewSet):
-    permission_classes = [IsAuthenticated]
+    permission_classes = (ProjectPermission,)
 
     serializer_class = ProjectListSerializer
     detail_serializer_class = ProjectDetailSerializer
@@ -57,7 +58,7 @@ class ProjectViewset(GetDetailSerializerClassMixin, ModelViewSet):
 
 
 class UserContributorsViewset(ModelViewSet):
-    permission_classes = [IsAuthenticated]
+    permission_classes = (ContributorViewsetPermission,)
 
     serializer_class = UserSerializer
 
@@ -84,7 +85,7 @@ class UserContributorsViewset(ModelViewSet):
     def destroy(self, request, *args, **kwargs):
         user_to_delete = User.objects.filter(id=self.kwargs['pk']).first()
         if user_to_delete == request.user:
-            return Response(data={'error': 'You cannnot delete yourself !'})
+            return Response(data={'error': 'You cannot delete yourself !'})
         if user_to_delete:
             contributor = Contributor.objects.filter(user_id=self.kwargs['pk'], project_id=self.kwargs['projects_pk']).first()
             if contributor:
@@ -96,7 +97,7 @@ class UserContributorsViewset(ModelViewSet):
 
 
 class IssuesViewset(GetDetailSerializerClassMixin, ModelViewSet):
-    permission_classes = [IsAuthenticated]
+    permission_classes = (IssuePermission,)
 
     serializer_class = IssueListSerializer
     detail_serializer_class = IssueDetailSerializer
@@ -129,7 +130,7 @@ class IssuesViewset(GetDetailSerializerClassMixin, ModelViewSet):
 
 
 class CommentViewset(GetDetailSerializerClassMixin, ModelViewSet):
-    permission_classes = [IsAuthenticated]
+    permission_classes = (CommentPermission,)
 
     serializer_class = CommentListSerializer
     detail_serializer_class = CommentListSerializer
