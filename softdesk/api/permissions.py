@@ -11,20 +11,22 @@ def check_contributor(user, project):
 
 class ContributorViewsetPermission(BasePermission):
 
+    """
+    Contributors can List other contributors, Read details about them
+    Authors can List, Read, Add, Update or Delete a contributor
+    """
+
     message = 'You dont have permission to do that.'
 
     def has_permission(self, request, view):
-        return request.user and request.user.is_authenticated
-
-    def has_object_permission(self, request, view, obj):
-        print(type(obj), obj)
-        if not request.user.is_authenticated:
+        if not request.user and request.user.is_authenticated:
             return False
 
         if view.action in ['retrieve', 'list']:
-            return check_contributor(request.user, obj.project_id)
+            return check_contributor(request.user, Project.objects.filter(id=view.kwargs['projects_pk']).first())
+
         elif view.action in ['update', 'partial_update', 'create', 'destroy']:
-            return request.user == obj.project_id.author_user_id
+            return request.user == Project.objects.filter(id=view.kwargs['projects_pk']).first().author_user_id
 
 
 class ProjectPermission(BasePermission):

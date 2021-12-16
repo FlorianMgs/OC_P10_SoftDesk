@@ -15,6 +15,10 @@ User = get_user_model()
 
 class SignupViewset(APIView):
 
+    """
+    Create User. Return 201 code if successfully created
+    """
+
     def post(self, request):
         serializer = UserSignupSerializer(data=request.data)
         if serializer.is_valid():
@@ -24,6 +28,14 @@ class SignupViewset(APIView):
 
 
 class ProjectViewset(GetDetailSerializerClassMixin, ModelViewSet):
+
+    """
+    Project endpoint.
+    Create: Anyone
+    Get list / details: Contributor or Author
+    Update / delete: Author
+    """
+
     permission_classes = (ProjectPermission,)
 
     serializer_class = ProjectListSerializer
@@ -57,6 +69,14 @@ class ProjectViewset(GetDetailSerializerClassMixin, ModelViewSet):
 
 
 class UserContributorsViewset(ModelViewSet):
+
+    """
+    Projects contributor endpoint. Used to get / add / delete contributors from a given project.
+    Get returns User objects, so we need to map this viewset to the user model.
+    Get list / details: Contributor or Author
+    Create / update / delete: Author
+    """
+
     permission_classes = (ContributorViewsetPermission,)
 
     serializer_class = UserSerializer
@@ -96,6 +116,13 @@ class UserContributorsViewset(ModelViewSet):
 
 
 class IssuesViewset(GetDetailSerializerClassMixin, ModelViewSet):
+
+    """
+    Issue endpoint. Used to get / add / delete issues from a given project.
+    Get list / details, Create: Project Contributor or Author
+    Update / delete: Issue Author
+    """
+
     permission_classes = (IssuePermission,)
 
     serializer_class = IssueListSerializer
@@ -129,6 +156,13 @@ class IssuesViewset(GetDetailSerializerClassMixin, ModelViewSet):
 
 
 class CommentViewset(GetDetailSerializerClassMixin, ModelViewSet):
+
+    """
+    Issue endpoint. Used to get / add / delete comments from a given issue of a given project.
+    Get list / details, Create: Project Contributor or Author
+    Update / delete: Comment Author
+    """
+
     permission_classes = (CommentPermission,)
 
     serializer_class = CommentListSerializer
