@@ -102,7 +102,7 @@ class Issue(models.Model):
     project_id = models.ForeignKey(
         to=Project,
         on_delete=models.CASCADE,
-        related_name='issue_of_project'
+        related_name='issues'
     )
 
 
@@ -118,4 +118,4 @@ class Comment(models.Model):
     issue_id = models.ForeignKey(
         to=Issue,
         on_delete=models.CASCADE,
-        related_name='comment_of_issue')
+        related_name='comments')

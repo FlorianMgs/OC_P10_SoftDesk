@@ -57,9 +57,15 @@ class ProjectListSerializer(ModelSerializer):
 
 class ProjectDetailSerializer(ModelSerializer):
 
+    issues = SerializerMethodField()
+
     class Meta:
         model = Project
-        fields = ['id', 'title', 'description', 'type', 'author_user_id']
+        fields = ['id', 'title', 'description', 'type', 'author_user_id', 'issues']
+
+    def get_issues(self, instance):
+        queryset = Issue.objects.filter(project_id=instance.id)
+        return IssueListSerializer(queryset, many=True).data
 
 
 class IssueListSerializer(ModelSerializer):
@@ -70,9 +76,16 @@ class IssueListSerializer(ModelSerializer):
 
 
 class IssueDetailSerializer(ModelSerializer):
+
+    comments = SerializerMethodField()
+
     class Meta:
         model = Issue
-        fields = ['id', 'created_time', 'title', 'description', 'priority', 'tag', 'status', 'author_user_id', 'assignee_user_id', 'project_id']
+        fields = ['id', 'created_time', 'title', 'description', 'priority', 'tag', 'status', 'author_user_id', 'assignee_user_id', 'project_id', 'comments']
+
+    def get_comments(self, instance):
+        queryset = Comment.objects.filter(issue_id=instance.id)
+        return CommentListSerializer(queryset, many=True).data
 
 
 class CommentListSerializer(ModelSerializer):
